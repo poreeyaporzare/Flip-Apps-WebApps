@@ -1,2 +1,2 @@
 # Flip-web-apps ©️
-Flip-file-share > share files with any operating system
+Flip-file-share-web > share files with any operating system
