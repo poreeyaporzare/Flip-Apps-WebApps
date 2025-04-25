@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <h1 class="a1">Flip-file-share<br>📁💻←→📁📱</h1>
+    <style>
+        body
+        {
+            font-family:"icon", sans-serif;
+            font-weight:bold;
+            color:rgb(49, 121, 255);
+            background: linear-gradient(to right ,rgb(255, 255, 255),rgb(255, 255, 255),rgb(49, 121, 255),rgb(20, 0, 131));
+        }
+        .a1
+        {
+         font: icon;
+         color:rgb(49, 121, 255);
+         position:sticky;
+         font-size:xx-large;
+         font-weight: bold;
+        }
+        .a2
+        {
+         font: icon;
+         color:rgb(49, 121, 255);
+         font-weight: bold;
+         position: absolute;
+         top: 82%;
+        }
+        .b1
+        {
+         font: icon;
+         border: 4px solid rgb(20, 0, 131) !important;
+         box-shadow: 0px 0px 22px 0px rgb(49, 121, 255);
+         color:rgb(255, 255, 255);
+         position:absolute;
+         top:43%;
+         font-size:medium;
+         font-weight: bold;
+         background-color:rgb(49, 121, 255);
+         border-radius:10px;
+         padding:0.92%;
+         text-decoration:none;
+         border:none;
+        }
+        .b1:hover
+        {
+            box-shadow: 0px 0px 22px 0px rgb(158, 158, 158);
+            background-color: rgb(158, 158, 158);
+            transition: 1s;
+            transform: scale(1.1);
+        }
+        .b2
+        {
+         font: icon;
+         border: 4px solid rgb(20, 0, 131) !important;
+         box-shadow: 0px 0px 22px 0px rgb(49, 121, 255);
+         color:rgb(255, 255, 255);
+         position:absolute;
+         top:58%;
+         font-size:medium;
+         font-weight: bold;
+         background-color:rgb(49, 121, 255);
+         border-radius:10px;
+         padding:0.92%;
+         text-decoration:none;
+         border:none;
+        }
+        .b2:hover
+        {
+            box-shadow: 0px 0px 22px 0px rgb(158, 158, 158);
+            background-color: rgb(158, 158, 158);
+            transition: 1s;
+            transform: scale(1.1); 
+        }
+        .b3
+        {
+         font: icon;
+         border: 4px solid rgb(20, 0, 131) !important;
+         box-shadow: 0px 0px 22px 0px rgb(49, 121, 255);
+         color:rgb(255, 255, 255);
+         position:absolute;
+         top:72%;
+         font-size:medium;
+         font-weight: bold;
+         background-color:rgb(49, 121, 255);
+         border-radius:10px;
+         padding:0.92%;
+         text-decoration:none;
+         border:none;
+        }
+        .b3:hover
+        {
+            box-shadow: 0px 0px 22px 0px rgb(158, 158, 158);
+            background-color: rgb(158, 158, 158);
+            transition: 1s;
+            transform: scale(1.1); 
+        }
+    </style>
+
+</head>
+<body>
+       <!-- <input class="b1" type="file" multiple>
+        <input class="b2" type="file">
+       -->
+
+       <h3 class="a2">💡Help: Select file and Select location to saved <br>
+        🧑‍💻devloper: poreeya porzare (Flip-software's)
+       </h3>
+    <input class="b1" type="file" id="fileInput" multiple>
+    <button class="b2" onclick="selectDestination()">📂 Choose a location to save files</button>
+    <button class="b3" id="saveFilesBtn" onclick="saveFiles()" style="display:none">💾 Saving the files</button>
+    <p id="selectedPath"></p>
+    <div id="fileList"></div>
+    <div id="downloadLinks"></div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        let encryptedHTML = "U2FsdGVkX1+hvJ3FsQ6J94QhXKGsPImqfCZP==";
+        let secretKey = "poreeya1386";
+    
+        try {
+            let decryptedHTML = CryptoJS.AES.decrypt(encryptedHTML, secretKey).toString(CryptoJS.enc.Utf8);
+            document.write(decryptedHTML);
+        } catch (error) {
+            console.error("⚠ password is not true!");
+        }
+    </script>
+
+
+    <script>
+        let selectedFiles = [];
+        let destinationHandle;
+
+        document.getElementById("fileInput").addEventListener("change", function () {
+            selectedFiles = Array.from(this.files);
+            if (selectedFiles.length === 0) {
+                
+                alert("⚠ Please select a file!");
+                return;
+            }
+
+            document.getElementById("fileList").innerHTML = selectedFiles.map(file => `<p>${file.name}</p>`).join("");
+            document.getElementById("saveFilesBtn").style.display = "none";
+        });
+
+        async function selectDestination() {
+            try {
+                destinationHandle = await window.showDirectoryPicker();
+                document.getElementById("selectedPath").innerText = `📂 Selected location: ${destinationHandle.name}`;
+                document.getElementById("saveFilesBtn").style.display = "block";
+            } catch (error) {
+                alert("❌ Error selecting location! Please try again");
+            }
+        }
+
+        async function saveFiles() {
+            if (!selectedFiles.length || !destinationHandle) {
+                alert("⚠ Please specify the files and save path!");
+                return;
+            }
+
+            let downloadArea = document.getElementById("downloadLinks");
+            downloadArea.innerHTML = "";
+
+            try {
+                for (const file of selectedFiles) {
+                    const newFileHandle = await destinationHandle.getFileHandle(file.name, { create: true });
+                    const writableStream = await newFileHandle.createWritable();
+                    await writableStream.write(await file.arrayBuffer());
+                    await writableStream.close();
+
+                    
+                    let blob = new Blob([await file.arrayBuffer()], { type: file.type });
+                    let url = URL.createObjectURL(blob);
+
+                    let link = document.createElement("a");
+                    link.href = url;
+                    link.download = file.name;
+                    link.innerText = `📂 Download file${file.name}`;
+                    
+                    downloadArea.appendChild(link);
+                    downloadArea.appendChild(document.createElement("br"));
+                }
+
+                alert("✅ Files saved and custom download link created");
+            } catch (error) {
+                alert(`❌ Error saving files: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
